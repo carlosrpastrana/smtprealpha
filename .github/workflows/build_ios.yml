@@ -1,14 +1,14 @@
 name: Compilar IPA iOS
 
 on:
-  workflow_dispatch: # Permite iniciar la compilación manualmente con un clic en GitHub
+  workflow_dispatch:
   push:
-    branches: [ main, master ] # Opcional: compila automáticamente al hacer push
+    branches: [ main ]
 
 jobs:
   build:
     name: Build iOS IPA
-    runs-on: macos-latest # Utiliza los servidores Mac oficiales de GitHub
+    runs-on: macos-latest
 
     steps:
       - name: 1. Clonar el repositorio
@@ -23,23 +23,17 @@ jobs:
       - name: 3. Descargar dependencias de Flutter
         run: flutter pub get
 
-      - name: 4. Instalar CocoaPods (Google Maps / plugins)
-        run: |
-          cd ios
-          pod install
-          cd ..
-
-      - name: 5. Compilar binario de iOS sin firma
+      - name: 4. Compilar binario de iOS (Flutter resuelve CocoaPods automáticamente)
         run: flutter build ios --release --no-codesign
 
-      - name: 6. Empaquetar en formato IPA para Sideloadly
+      - name: 5. Empaquetar en formato IPA para Sideloadly
         run: |
           cd build/ios/iphoneos
           mkdir Payload
           cp -R Runner.app Payload/
           zip -r SMT_Libre_Gluten.ipa Payload
 
-      - name: 7. Subir el archivo IPA generado
+      - name: 6. Subir el archivo IPA generado
         uses: actions/upload-artifact@v4
         with:
           name: SMT_Libre_Gluten_IPA
